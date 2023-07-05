@@ -159,3 +159,25 @@ exports.updatePassword = catchAsyncError(async (req, res, next) => {
     user,
   });
 });
+
+//get all user
+exports.getALLUsers = catchAsyncError(async (req, res, next) => {
+  const users = await User.find();
+
+  res.status(200).json({
+    success: true,
+    users,
+  });
+});
+
+//get single user detail
+exports.getSingleUserDetail = catchAsyncError(async (req, res, next) => {
+  const user = await User.find(req.params.id);
+  if (!user) {
+    return next(new ErrorHandler("entered id is wrong", 404));
+  }
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
