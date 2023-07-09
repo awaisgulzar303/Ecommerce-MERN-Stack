@@ -172,12 +172,28 @@ exports.getALLUsers = catchAsyncError(async (req, res, next) => {
 
 //get single user detail
 exports.getSingleUserDetail = catchAsyncError(async (req, res, next) => {
-  const user = await User.find(req.params.id);
+  const user = await User.findById(req.params.id);
   if (!user) {
     return next(new ErrorHandler("entered id is wrong", 404));
   }
   res.status(200).json({
     success: true,
     user,
+  });
+});
+
+//user update profile
+exports.updateProfile = catchAsyncError(async (req, res, next) => {
+  const newUpdatedData = {
+    name: req.body.name,
+    email: req.body.email,
+  };
+  const user = await User.findByIdAndUpdate(req.user.id, newUpdatedData, {
+    new: true,
+    runValidators: true,
+    useFindAndModify: false,
+  });
+  res.status(200).json({
+    success: true,
   });
 });

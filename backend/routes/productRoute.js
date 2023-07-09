@@ -19,7 +19,7 @@ router
 
 //update products
 router
-  .route("/products/:id")
+  .route("/admin/products/:id")
   .put(isAuthenticatedUser, authorizeRole("admin"), updateProducts)
   .delete(isAuthenticatedUser, authorizeRole("admin"), deleteProduct);
 
