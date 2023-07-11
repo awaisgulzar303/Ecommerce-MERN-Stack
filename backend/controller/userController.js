@@ -160,7 +160,7 @@ exports.updatePassword = catchAsyncError(async (req, res, next) => {
   });
 });
 
-//get all user
+//get all user --Admin
 exports.getALLUsers = catchAsyncError(async (req, res, next) => {
   const users = await User.find();
 
@@ -170,7 +170,7 @@ exports.getALLUsers = catchAsyncError(async (req, res, next) => {
   });
 });
 
-//get single user detail
+//get single user detail -- Admin
 exports.getSingleUserDetail = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.params.id);
   if (!user) {
@@ -193,6 +193,40 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
     runValidators: true,
     useFindAndModify: false,
   });
+  res.status(200).json({
+    success: true,
+  });
+});
+
+//define user role --Admin
+exports.updateRole = catchAsyncError(async (req, res, next) => {
+  const newUpdatedData = {
+    name: req.body.name,
+    email: req.body.email,
+    role: req.body.role,
+  };
+  const user = await User.findByIdAndUpdate(req.user.id, newUpdatedData, {
+    new: true,
+    runValidators: true,
+    useFindAndModify: false,
+  });
+  res.status(200).json({
+    success: true,
+  });
+});
+
+//delete user --Admin
+exports.deleteUser = catchAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+
+  if (!user) {
+    return new ErrorHandler(
+      "User not found with this id " + req.params.id,
+      404
+    );
+  }
+  await user.remove();
+
   res.status(200).json({
     success: true,
   });
