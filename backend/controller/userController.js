@@ -225,7 +225,7 @@ exports.deleteUser = catchAsyncError(async (req, res, next) => {
       404
     );
   }
-  await user.remove();
+  await user.deleteOne();
 
   res.status(200).json({
     success: true,
