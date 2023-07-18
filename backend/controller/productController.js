@@ -81,7 +81,7 @@ exports.getProductDetails = catchAsyncError(async (req, res, next) => {
 
 //create and update Reviews
 exports.createReviewsOfProducts = catchAsyncError(async (req, res, next) => {
-  const { rating, comment, ProducId } = req.body;
+  const { rating, comment, ProductId } = req.body;
 
   const review = {
     user: req.user._id,
@@ -89,7 +89,7 @@ exports.createReviewsOfProducts = catchAsyncError(async (req, res, next) => {
     rating: Number(rating),
     comment: comment,
   };
-  const product = await productSchema.findById(ProducId);
+  const product = await productSchema.findById(ProductId);
   const isReviewed = await product.reviews.find(
     (rev) => rev.user.toString() === req.user._id.toString()
   );
@@ -111,6 +111,50 @@ exports.createReviewsOfProducts = catchAsyncError(async (req, res, next) => {
   await product.save({ validateBeforeSave: false });
   console.log(product.ratings);
 
+  res.status(200).json({
+    success: true,
+  });
+});
+
+//get Review of a Single product
+exports.getReviewOfASingleProduct = catchAsyncError(async (req, res, next) => {
+  const product = await productSchema.findById(req.query.ProductID);
+
+  if (!product) {
+    return next(new ErrorHandler("product Not Found", 400));
+  }
+
+  res.status(200).json({
+    success: true,
+    reviews: product.reviews,
+  });
+});
+
+//delete reviews
+exports.deleteReviews = catchAsyncError(async (req, res, next) => {
+  const product = await productSchema.findById(req.query.ProductID);
+  if (!product) {
+    return next(new ErrorHandler("product Not Found", 400));
+  }
+  const reviews = product.reviews.filter(
+    (rev) => rev._id.toString() !== req.query.userReviewID.toString()
+  );
+
+  console.log(reviews);
+
+  let average = 0;
+  reviews.forEach((element) => (average = average + element.rating));
+
+  const ratings = average / reviews.length;
+  console.log(reviews.length);
+
+  const numOfReviews = reviews.length;
+
+  await productSchema.findByIdAndUpdate(
+    req.query.productID,
+    { reviews, ratings, numOfReviews },
+    { new: true, runValidators: true, useFindAndModify: false }
+  );
   res.status(200).json({
     success: true,
   });
