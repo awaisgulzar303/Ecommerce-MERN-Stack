@@ -7,8 +7,10 @@ app.use(cookieParser());
 //Route Imports
 const product = require("./routes/productRoute");
 const userRegsiter = require("./routes/userRoutes");
+const order = require("./routes/orderRoutes");
 app.use("/api/v1", product);
 app.use("/api/v1", userRegsiter);
+app.use("/api/v1", order);
 
 //middleWare for errors
 app.use(errorMiddleWare);
