@@ -78,14 +78,45 @@ exports.updateOrderStatus = catchAsyncError(async (req, res, next) => {
   if (!order) {
     return next(new ErrorHandler("order with this ID not found", 404));
   }
+  if (order.status === "Deliverd") {
+    return next(
+      new ErrorHandler("You have already deliverd this product", 404)
+    );
+  }
   order = await Order.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
     useFindAndModify: false,
   });
 
+  updateStock(order.orderItems.product, order.orderItems.quantity, next, res);
+});
+
+// update Stock
+async function updateStock(id, quantity, next, res) {
+  let product = await Product.findById(id);
+
+  if (product.stock < quantity) {
+    return next(new ErrorHandler("out of stock", 400));
+  }
+  product.stock = product.stock - quantity;
+
+  await product.save({ validateBeforeSave: false });
+
   res.status(200).json({
     success: true,
-    order,
+  });
+}
+
+exports.deleteOrder = catchAsyncError(async (req, res, next) => {
+  const order = await Order.findById(req.params.id);
+  if (!order) {
+    return next(new ErrorHandler("order with this ID not found", 404));
+  }
+
+  await order.deleteOne();
+
+  res.status(200).json({
+    success: true,
   });
 });
